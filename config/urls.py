@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from core.views import home, campsites_list, campsite_detail
+from core.views import home, campsites_list, campsite_detail, campsite_create, campsite_edit, campsite_delete
 from accounts.views import login_view, register_view, logout_view
 
 
@@ -33,7 +33,10 @@ urlpatterns = [
     
     # Campsites
     path('campsites/', campsites_list, name='campsites_list'),
+    path('campsites/create/', campsite_create, name='campsite_create'),
     path('campsites/<int:pk>/', campsite_detail, name='campsite_detail'),
+    path('campsites/<int:pk>/edit/', campsite_edit, name='campsite_edit'),
+    path('campsites/<int:pk>/delete/', campsite_delete, name='campsite_delete'),
     
     path('admin/', admin.site.urls),
 
