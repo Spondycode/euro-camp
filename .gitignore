@@ -9,5 +9,8 @@ wheels/
 # Virtual environments
 .venv
 
+# Environment variables
+.env
+
 # Tailwind CSS CLI binary
 tailwindcss
