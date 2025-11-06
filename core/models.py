@@ -81,6 +81,11 @@ class Campsite(models.Model):
         db_index=True,
         help_text="User who originally suggested this campsite"
     )
+    is_premium = models.BooleanField(
+        default=False,
+        db_index=True,
+        help_text="Premium campsites are featured at the top of listings"
+    )
 
     class Meta:
         ordering = ['name']

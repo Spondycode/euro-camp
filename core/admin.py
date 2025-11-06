@@ -19,10 +19,11 @@ reject_campsites.short_description = "Reject and delete selected campsites"
 
 @admin.register(Campsite)
 class CampsiteAdmin(admin.ModelAdmin):
-    list_display = ('name', 'country', 'is_approved', 'suggested_by', 'created_by', 'created_at')
-    list_filter = ('is_approved', 'country', 'created_at')
+    list_display = ('name', 'country', 'is_approved', 'is_premium', 'suggested_by', 'created_by', 'created_at')
+    list_filter = ('is_approved', 'is_premium', 'country', 'created_at')
     search_fields = ('name', 'country', 'description', 'suggested_by__username')
     ordering = ('name',)
     actions = [approve_campsites, reject_campsites]
+    list_editable = ('is_premium',)
     
     readonly_fields = ('created_at', 'updated_at')

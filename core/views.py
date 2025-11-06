@@ -26,13 +26,22 @@ def campsites_list(request):
     """Display list of all campsites."""
     # Staff can see all campsites; others only see approved
     if request.user.is_staff:
-        campsites = Campsite.objects.all()
+        all_campsites = Campsite.objects.all()
     else:
-        campsites = Campsite.objects.filter(is_approved=True)
+        all_campsites = Campsite.objects.filter(is_approved=True)
+    
+    # Separate premium and regular campsites
+    premium_campsites = all_campsites.filter(is_premium=True)
+    regular_campsites = all_campsites.filter(is_premium=False)
     
     # Can add new campsites if superuser or in CampsiteManager group
     can_add = request.user.is_superuser or request.user.groups.filter(name='CampsiteManager').exists()
-    return render(request, 'campsites/list.html', {'campsites': campsites, 'can_modify': can_add})
+    
+    return render(request, 'campsites/list.html', {
+        'premium_campsites': premium_campsites,
+        'campsites': regular_campsites,
+        'can_modify': can_add
+    })
 
 
 @login_required
