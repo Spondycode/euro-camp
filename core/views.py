@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.http import HttpResponseForbidden
+from django.core.exceptions import PermissionDenied
 from .models import Campsite
 from .forms import CampsiteForm
 from .utils import upload_campsite_image
@@ -9,15 +11,24 @@ from .utils import upload_campsite_image
 
 def home(request):
     """Render the home page."""
-    # Get the last two campsites ordered by creation date
-    recent_campsites = Campsite.objects.order_by('-created_at')[:2]
+    # Get the last two approved campsites ordered by creation date
+    # Staff can see all; others only see approved
+    if request.user.is_authenticated and request.user.is_staff:
+        recent_campsites = Campsite.objects.order_by('-created_at')[:2]
+    else:
+        recent_campsites = Campsite.objects.filter(is_approved=True).order_by('-created_at')[:2]
     return render(request, 'home.html', {'recent_campsites': recent_campsites})
 
 
 @login_required
 def campsites_list(request):
     """Display list of all campsites."""
-    campsites = Campsite.objects.all()
+    # Staff can see all campsites; others only see approved
+    if request.user.is_staff:
+        campsites = Campsite.objects.all()
+    else:
+        campsites = Campsite.objects.filter(is_approved=True)
+    
     # Can add new campsites if superuser or in CampsiteManager group
     can_add = request.user.is_superuser or request.user.groups.filter(name='CampsiteManager').exists()
     return render(request, 'campsites/list.html', {'campsites': campsites, 'can_modify': can_add})
@@ -27,6 +38,12 @@ def campsites_list(request):
 def campsite_detail(request, pk):
     """Display details of a specific campsite."""
     campsite = get_object_or_404(Campsite, pk=pk)
+    
+    # Check if user can view: approved, staff, or the suggester themselves
+    if not campsite.is_approved:
+        if not (request.user.is_staff or campsite.suggested_by == request.user):
+            raise PermissionDenied("You don't have permission to view this campsite.")
+    
     # Check if user can edit/delete: superuser can modify any, CampsiteManager can only modify their own
     can_modify = request.user.is_superuser or (request.user.groups.filter(name='CampsiteManager').exists() and campsite.created_by == request.user)
     return render(request, 'campsites/detail.html', {'campsite': campsite, 'can_modify': can_modify})
@@ -111,3 +128,51 @@ def campsite_delete(request, pk):
         return redirect('campsites_list')
     
     return render(request, 'campsites/delete.html', {'campsite': campsite})
+
+
+@login_required
+def campsite_suggest(request):
+    """Allow any authenticated user to suggest a campsite."""
+    if request.method == 'POST':
+        form = CampsiteForm(request.POST, request.FILES)
+        if form.is_valid():
+            campsite = form.save(commit=False)
+            campsite.suggested_by = request.user
+            
+            # Auto-approve if user has 3+ approved suggestions or is staff
+            campsite.is_approved = request.user.can_auto_approve_campsites or request.user.is_staff
+            
+            # Handle image upload
+            uploaded_image = form.cleaned_data.get('image')
+            if uploaded_image:
+                try:
+                    campsite.image_url = upload_campsite_image(uploaded_image)
+                except Exception as e:
+                    messages.error(request, f'Image upload failed: {e}')
+            
+            campsite.save()
+            
+            if campsite.is_approved:
+                messages.success(request, f'{campsite.name} was auto-approved and is now live!')
+            else:
+                messages.success(request, f'{campsite.name} has been submitted and is pending review.')
+            
+            return redirect('campsite_detail', pk=campsite.pk)
+    else:
+        form = CampsiteForm()
+    
+    return render(request, 'campsites/suggest.html', {'form': form})
+
+
+@login_required
+def my_suggestions(request):
+    """Display user's suggested campsites."""
+    suggestions = Campsite.objects.filter(suggested_by=request.user).order_by('-created_at')
+    return render(request, 'campsites/my_suggestions.html', {'suggestions': suggestions})
+
+
+@staff_member_required
+def pending_campsites(request):
+    """Display pending campsite suggestions (staff only)."""
+    pending = Campsite.objects.filter(is_approved=False).select_related('suggested_by').order_by('created_at')
+    return render(request, 'campsites/pending.html', {'pending_campsites': pending})
