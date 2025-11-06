@@ -14,6 +14,22 @@ class Campsite(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='campsites')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    # Approval and suggestion tracking
+    is_approved = models.BooleanField(
+        default=False,
+        db_index=True,
+        help_text="Whether this campsite has been approved for display"
+    )
+    suggested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='suggested_campsites',
+        db_index=True,
+        help_text="User who originally suggested this campsite"
+    )
 
     class Meta:
         ordering = ['name']
@@ -21,4 +37,5 @@ class Campsite(models.Model):
         verbose_name_plural = 'Campsites'
 
     def __str__(self):
-        return f"{self.name} - {self.country}"
+        status = "Approved" if self.is_approved else "Pending"
+        return f"{self.name} - {self.country} ({status})"
