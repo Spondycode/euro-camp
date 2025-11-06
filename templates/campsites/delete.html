@@ -65,7 +65,7 @@
                         </div>
                         <div class="flex">
                             <dt class="font-medium text-gray-500 w-32">Country:</dt>
-                            <dd class="text-gray-800">{{ campsite.country }}</dd>
+                            <dd class="text-gray-800">{{ campsite.get_country_display }}</dd>
                         </div>
                         {% if campsite.phone_number %}
                         <div class="flex">

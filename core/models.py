@@ -4,12 +4,63 @@ from django.conf import settings
 
 class Campsite(models.Model):
     """Model representing a campsite."""
+    
+    # European countries choices
+    COUNTRY_CHOICES = [
+        ('AL', 'Albania'),
+        ('AD', 'Andorra'),
+        ('AT', 'Austria'),
+        ('BY', 'Belarus'),
+        ('BE', 'Belgium'),
+        ('BA', 'Bosnia and Herzegovina'),
+        ('BG', 'Bulgaria'),
+        ('HR', 'Croatia'),
+        ('CY', 'Cyprus'),
+        ('CZ', 'Czech Republic'),
+        ('DK', 'Denmark'),
+        ('EE', 'Estonia'),
+        ('FI', 'Finland'),
+        ('FR', 'France'),
+        ('DE', 'Germany'),
+        ('GR', 'Greece'),
+        ('HU', 'Hungary'),
+        ('IS', 'Iceland'),
+        ('IE', 'Ireland'),
+        ('IT', 'Italy'),
+        ('XK', 'Kosovo'),
+        ('LV', 'Latvia'),
+        ('LI', 'Liechtenstein'),
+        ('LT', 'Lithuania'),
+        ('LU', 'Luxembourg'),
+        ('MT', 'Malta'),
+        ('MD', 'Moldova'),
+        ('MC', 'Monaco'),
+        ('ME', 'Montenegro'),
+        ('NL', 'Netherlands'),
+        ('MK', 'North Macedonia'),
+        ('NO', 'Norway'),
+        ('PL', 'Poland'),
+        ('PT', 'Portugal'),
+        ('RO', 'Romania'),
+        ('RU', 'Russia'),
+        ('SM', 'San Marino'),
+        ('RS', 'Serbia'),
+        ('SK', 'Slovakia'),
+        ('SI', 'Slovenia'),
+        ('ES', 'Spain'),
+        ('SE', 'Sweden'),
+        ('CH', 'Switzerland'),
+        ('UA', 'Ukraine'),
+        ('GB', 'United Kingdom'),
+        ('VA', 'Vatican City'),
+    ]
+    
     name = models.CharField(max_length=255)
     description = models.TextField()
     map_location = models.CharField(max_length=500, help_text="GPS coordinates or map URL")
     website = models.URLField(max_length=500, blank=True)
     phone_number = models.CharField(max_length=50, blank=True)
-    country = models.CharField(max_length=100)
+    country = models.CharField(max_length=2, choices=COUNTRY_CHOICES)
     image_url = models.URLField(max_length=500, blank=True, null=True, help_text="Primary image hosted on ImageKit")
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='campsites')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -38,4 +89,4 @@ class Campsite(models.Model):
 
     def __str__(self):
         status = "Approved" if self.is_approved else "Pending"
-        return f"{self.name} - {self.country} ({status})"
+        return f"{self.name} - {self.get_country_display()} ({status})"
