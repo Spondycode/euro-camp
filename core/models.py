@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 
 class Campsite(models.Model):
@@ -95,3 +96,32 @@ class Campsite(models.Model):
     def __str__(self):
         status = "Approved" if self.is_approved else "Pending"
         return f"{self.name} - {self.get_country_display()} ({status})"
+
+
+class CampsiteLike(models.Model):
+    """Model representing a user's like of a campsite."""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='campsite_likes'
+    )
+    campsite = models.ForeignKey(
+        'Campsite',
+        on_delete=models.CASCADE,
+        related_name='likes'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'campsite'],
+                name='unique_campsite_like'
+            ),
+        ]
+        ordering = ['-created_at']
+        verbose_name = 'Campsite Like'
+        verbose_name_plural = 'Campsite Likes'
+
+    def __str__(self):
+        return f"{self.user.username} likes {self.campsite.name}"

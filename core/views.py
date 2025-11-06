@@ -5,7 +5,8 @@ from django.contrib import messages
 from django.http import HttpResponseForbidden, JsonResponse
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_POST
-from .models import Campsite
+from django.db.models import Count
+from .models import Campsite, CampsiteLike
 from .forms import CampsiteForm
 from .utils import upload_campsite_image
 
@@ -30,9 +31,19 @@ def campsites_list(request):
     else:
         all_campsites = Campsite.objects.filter(is_approved=True)
     
+    # Annotate with like counts
+    all_campsites = all_campsites.annotate(like_count=Count('likes'))
+    
     # Separate premium and regular campsites
     premium_campsites = all_campsites.filter(is_premium=True)
     regular_campsites = all_campsites.filter(is_premium=False)
+    
+    # Get current user's liked campsite IDs
+    liked_campsite_ids = set()
+    if request.user.is_authenticated:
+        liked_campsite_ids = set(
+            CampsiteLike.objects.filter(user=request.user).values_list('campsite_id', flat=True)
+        )
     
     # Can add new campsites if superuser or in CampsiteManager group
     can_add = request.user.is_superuser or request.user.groups.filter(name='CampsiteManager').exists()
@@ -40,23 +51,38 @@ def campsites_list(request):
     return render(request, 'campsites/list.html', {
         'premium_campsites': premium_campsites,
         'campsites': regular_campsites,
-        'can_modify': can_add
+        'can_modify': can_add,
+        'liked_campsite_ids': liked_campsite_ids
     })
 
 
 @login_required
 def campsite_detail(request, pk):
     """Display details of a specific campsite."""
-    campsite = get_object_or_404(Campsite, pk=pk)
+    campsite = get_object_or_404(
+        Campsite.objects.annotate(like_count=Count('likes')),
+        pk=pk
+    )
     
     # Check if user can view: approved, staff, or the suggester themselves
     if not campsite.is_approved:
         if not (request.user.is_staff or campsite.suggested_by == request.user):
             raise PermissionDenied("You don't have permission to view this campsite.")
     
+    # Get current user's liked campsite IDs
+    liked_campsite_ids = set()
+    if request.user.is_authenticated:
+        liked_campsite_ids = set(
+            CampsiteLike.objects.filter(user=request.user).values_list('campsite_id', flat=True)
+        )
+    
     # Check if user can edit/delete: superuser can modify any, CampsiteManager can only modify their own
     can_modify = request.user.is_superuser or (request.user.groups.filter(name='CampsiteManager').exists() and campsite.created_by == request.user)
-    return render(request, 'campsites/detail.html', {'campsite': campsite, 'can_modify': can_modify})
+    return render(request, 'campsites/detail.html', {
+        'campsite': campsite,
+        'can_modify': can_modify,
+        'liked_campsite_ids': liked_campsite_ids
+    })
 
 
 @login_required
@@ -176,9 +202,19 @@ def campsite_suggest(request):
 
 @login_required
 def my_suggestions(request):
-    """Display user's suggested campsites."""
+    """Display user's suggested campsites and liked campsites."""
     suggestions = Campsite.objects.filter(suggested_by=request.user).order_by('-created_at')
-    return render(request, 'campsites/my_suggestions.html', {'suggestions': suggestions})
+    
+    # Get campsites the user has liked
+    liked_campsites = Campsite.objects.filter(
+        likes__user=request.user,
+        is_approved=True
+    ).annotate(like_count=Count('likes')).order_by('-likes__created_at')
+    
+    return render(request, 'campsites/my_suggestions.html', {
+        'suggestions': suggestions,
+        'liked_campsites': liked_campsites
+    })
 
 
 @staff_member_required

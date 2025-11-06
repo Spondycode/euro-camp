@@ -45,7 +45,24 @@
             
             <!-- Header Section -->
             <div class="bg-green-600 text-white p-8">
-                <h1 class="text-4xl font-bold mb-2">{{ campsite.name }}</h1>
+                <div class="flex justify-between items-start mb-2">
+                    <h1 class="text-4xl font-bold">{{ campsite.name }}</h1>
+                    <button class="like-btn flex items-center gap-3 {% if campsite.pk in liked_campsite_ids %}text-rose-300{% else %}text-white{% endif %} hover:text-rose-300 transition cursor-pointer bg-white/10 px-6 py-3 rounded-lg backdrop-blur-sm"
+                            data-campsite-id="{{ campsite.pk }}"
+                            data-like-url="{% url 'api:campsite-like-toggle' campsite.pk %}"
+                            data-liked="{% if campsite.pk in liked_campsite_ids %}true{% else %}false{% endif %}"
+                            data-auth-required="{% if not user.is_authenticated %}true{% else %}false{% endif %}">
+                        <!-- Heart outline (unliked state) -->
+                        <svg class="heart-outline {% if campsite.pk in liked_campsite_ids %}hidden{% endif %}" style="width: 3rem; height: 3rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                        <!-- Heart solid (liked state) -->
+                        <svg class="heart-solid {% if campsite.pk not in liked_campsite_ids %}hidden{% endif %}" style="width: 3rem; height: 3rem;" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"></path>
+                        </svg>
+                        <span class="like-count text-2xl font-bold">{{ campsite.like_count|default:0 }}</span>
+                    </button>
+                </div>
                 <p class="text-xl flex items-center">
                     <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
@@ -173,4 +190,8 @@
         <p>&copy; {% now "Y" %} Euro Camp. All rights reserved.</p>
     </div>
 </footer>
+
+<!-- Likes JavaScript -->
+{% load static %}
+<script src="{% static 'js/likes.js' %}"></script>
 {% endblock %}

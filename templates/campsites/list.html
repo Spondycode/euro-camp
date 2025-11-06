@@ -137,7 +137,22 @@
                             {% endif %}
                         </div>
                         
-                        <div class="mt-4 pt-4 border-t border-gray-200">
+                        <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
+                            <button class="like-btn flex items-center gap-1 {% if campsite.pk in liked_campsite_ids %}text-rose-600{% else %}text-gray-500{% endif %} hover:text-rose-600 transition cursor-pointer"
+                                    data-campsite-id="{{ campsite.pk }}"
+                                    data-like-url="{% url 'api:campsite-like-toggle' campsite.pk %}"
+                                    data-liked="{% if campsite.pk in liked_campsite_ids %}true{% else %}false{% endif %}"
+                                    data-auth-required="{% if not user.is_authenticated %}true{% else %}false{% endif %}">
+                                <!-- Heart outline (unliked state) -->
+                                <svg class="heart-outline w-5 h-5 {% if campsite.pk in liked_campsite_ids %}hidden{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                                <!-- Heart solid (liked state) -->
+                                <svg class="heart-solid w-5 h-5 {% if campsite.pk not in liked_campsite_ids %}hidden{% endif %}" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"></path>
+                                </svg>
+                                <span class="like-count text-sm font-medium">{{ campsite.like_count|default:0 }}</span>
+                            </button>
                             <a href="{% url 'campsite_detail' campsite.pk %}" class="text-green-600 hover:text-green-700 font-semibold flex items-center">
                                 View Details
                                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -215,7 +230,22 @@
                         {% endif %}
                     </div>
                     
-                        <div class="mt-4 pt-4 border-t border-gray-200">
+                        <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
+                            <button class="like-btn flex items-center gap-1 {% if campsite.pk in liked_campsite_ids %}text-rose-600{% else %}text-gray-500{% endif %} hover:text-rose-600 transition cursor-pointer"
+                                    data-campsite-id="{{ campsite.pk }}"
+                                    data-like-url="{% url 'api:campsite-like-toggle' campsite.pk %}"
+                                    data-liked="{% if campsite.pk in liked_campsite_ids %}true{% else %}false{% endif %}"
+                                    data-auth-required="{% if not user.is_authenticated %}true{% else %}false{% endif %}">
+                                <!-- Heart outline (unliked state) -->
+                                <svg class="heart-outline w-5 h-5 {% if campsite.pk in liked_campsite_ids %}hidden{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                                <!-- Heart solid (liked state) -->
+                                <svg class="heart-solid w-5 h-5 {% if campsite.pk not in liked_campsite_ids %}hidden{% endif %}" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"></path>
+                                </svg>
+                                <span class="like-count text-sm font-medium">{{ campsite.like_count|default:0 }}</span>
+                            </button>
                             <a href="{% url 'campsite_detail' campsite.pk %}" class="text-green-600 hover:text-green-700 font-semibold flex items-center">
                                 View Details
                                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -245,4 +275,8 @@
         <p>&copy; {% now "Y" %} Euro Camp. All rights reserved.</p>
     </div>
 </footer>
+
+<!-- Likes JavaScript -->
+{% load static %}
+<script src="{% static 'js/likes.js' %}"></script>
 {% endblock %}
