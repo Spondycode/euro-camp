@@ -181,9 +181,9 @@ def pending_campsites(request):
 
 @staff_member_required
 def admin_manage_suggestions(request):
-    """Admin page to manage all suggested campsites with toggle approval."""
-    # Get all campsites ordered by approval status (pending first), then by creation date
-    campsites = Campsite.objects.select_related('suggested_by').order_by('is_approved', '-created_at')
+    """Admin page to manage pending campsite suggestions with toggle approval."""
+    # Get only pending (unapproved) campsites ordered by creation date
+    campsites = Campsite.objects.filter(is_approved=False).select_related('suggested_by').order_by('-created_at')
     return render(request, 'campsites/admin_manage.html', {'campsites': campsites})
 
 
