@@ -7,13 +7,13 @@
 <header class="bg-green-600 text-white shadow-lg">
     <div class="container mx-auto px-4 py-6">
         <div class="flex justify-between items-center">
-            <a href="{% url 'home' %}" class="text-3xl font-bold hover:text-green-100 transition">Euro Camp</a>
+            <a href="{% url 'home' %}" class="text-3xl font-bold hover:text-green-100 transition">European Campsites</a>
             <nav class="flex items-center space-x-6">
                 <a href="{% url 'campsites_list' %}" class="text-white hover:text-green-100 font-semibold transition">Campsites</a>
                 {% if user.is_staff or user.is_superuser %}
                 <a href="{% url 'admin_manage_suggestions' %}" class="text-white hover:text-green-100 font-semibold transition">Admin</a>
                 {% endif %}
-                <span class="text-white">Welcome, {{ user.username }}!</span>
+                <span class="text-white">Welcome {{ user.username }}!</span>
                 <a href="{% url 'logout' %}" class="bg-white text-green-600 px-6 py-2 rounded-lg font-semibold hover:bg-green-50 transition">
                     Log Out
                 </a>
@@ -342,7 +342,7 @@
 <!-- Footer -->
 <footer class="bg-gray-800 text-white py-6 mt-auto">
     <div class="container mx-auto px-4 text-center">
-        <p>&copy; {% now "Y" %} Euro Camp. All rights reserved.</p>
+        <p>&copy; {% now "Y" %} European Campsites. All rights reserved.</p>
     </div>
 </footer>
 
