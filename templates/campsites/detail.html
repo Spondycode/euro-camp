@@ -34,6 +34,15 @@
 
         <!-- Campsite Details Card -->
         <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+            {% if campsite.image_url %}
+            <!-- Campsite Image -->
+            <div class="w-full h-96 overflow-hidden">
+                <img src="{{ campsite.image_url }}?tr=w-1200,h-600,fo-auto,f-auto,q-80" 
+                     alt="{{ campsite.name }}" 
+                     class="w-full h-full object-cover">
+            </div>
+            {% endif %}
+            
             <!-- Header Section -->
             <div class="bg-green-600 text-white p-8">
                 <h1 class="text-4xl font-bold mb-2">{{ campsite.name }}</h1>

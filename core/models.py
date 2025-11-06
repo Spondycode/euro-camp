@@ -10,6 +10,7 @@ class Campsite(models.Model):
     website = models.URLField(max_length=500, blank=True)
     phone_number = models.CharField(max_length=50, blank=True)
     country = models.CharField(max_length=100)
+    image_url = models.URLField(max_length=500, blank=True, null=True, help_text="Primary image hosted on ImageKit")
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='campsites')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

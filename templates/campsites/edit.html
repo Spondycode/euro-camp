@@ -45,8 +45,19 @@
                     {% endfor %}
                 {% endif %}
 
-                <form method="post" class="space-y-6">
+                <form method="post" enctype="multipart/form-data" class="space-y-6">
                     {% csrf_token %}
+                    
+                    {% if campsite.image_url %}
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Current Image</label>
+                        <div class="w-full max-w-md">
+                            <img src="{{ campsite.image_url }}?tr=w-400,h-300,fo-auto,f-auto,q-75" 
+                                 alt="{{ campsite.name }}" 
+                                 class="w-full rounded-lg shadow-md">
+                        </div>
+                    </div>
+                    {% endif %}
                     
                     {% for field in form %}
                         <div>

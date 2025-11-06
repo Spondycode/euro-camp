@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.http import HttpResponseForbidden
 from .models import Campsite
 from .forms import CampsiteForm
+from .utils import upload_campsite_image
 
 
 def home(request):
@@ -39,10 +40,19 @@ def campsite_create(request):
         return HttpResponseForbidden("You don't have permission to create campsites.")
     
     if request.method == 'POST':
-        form = CampsiteForm(request.POST)
+        form = CampsiteForm(request.POST, request.FILES)
         if form.is_valid():
             campsite = form.save(commit=False)
             campsite.created_by = request.user
+            
+            # Handle image upload
+            uploaded_image = form.cleaned_data.get('image')
+            if uploaded_image:
+                try:
+                    campsite.image_url = upload_campsite_image(uploaded_image)
+                except Exception as e:
+                    messages.error(request, f'Image upload failed: {e}')
+            
             campsite.save()
             messages.success(request, f'{campsite.name} has been created successfully!')
             return redirect('campsite_detail', pk=campsite.pk)
@@ -63,9 +73,19 @@ def campsite_edit(request, pk):
             return HttpResponseForbidden("You don't have permission to edit this campsite.")
     
     if request.method == 'POST':
-        form = CampsiteForm(request.POST, instance=campsite)
+        form = CampsiteForm(request.POST, request.FILES, instance=campsite)
         if form.is_valid():
-            form.save()
+            campsite = form.save(commit=False)
+            
+            # Handle image upload
+            uploaded_image = form.cleaned_data.get('image')
+            if uploaded_image:
+                try:
+                    campsite.image_url = upload_campsite_image(uploaded_image)
+                except Exception as e:
+                    messages.error(request, f'Image upload failed: {e}')
+            
+            campsite.save()
             messages.success(request, f'{campsite.name} has been updated successfully!')
             return redirect('campsite_detail', pk=campsite.pk)
     else:
