@@ -10,6 +10,9 @@
             <a href="{% url 'home' %}" class="text-3xl font-bold hover:text-green-100 transition">Euro Camp</a>
             <nav class="flex items-center space-x-6">
                 <a href="{% url 'campsites_list' %}" class="text-white hover:text-green-100 font-semibold transition">Campsites</a>
+                {% if user.is_staff or user.is_superuser %}
+                <a href="{% url 'admin_manage_suggestions' %}" class="text-white hover:text-green-100 font-semibold transition">Admin</a>
+                {% endif %}
                 <span class="text-white">Welcome, {{ user.username }}!</span>
                 <a href="{% url 'logout' %}" class="bg-white text-green-600 px-6 py-2 rounded-lg font-semibold hover:bg-green-50 transition">
                     Log Out

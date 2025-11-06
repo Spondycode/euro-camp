@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Manage Suggestions - Euro Camp{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<header class="bg-green-600 text-white shadow-lg">
+    <div class="container mx-auto px-4 py-6">
+        <div class="flex justify-between items-center">
+            <a href="{% url 'home' %}" class="text-3xl font-bold hover:text-green-100 transition">Euro Camp</a>
+            <nav class="flex items-center space-x-6">
+                <a href="{% url 'campsites_list' %}" class="text-white hover:text-green-100 font-semibold transition">Campsites</a>
+                <a href="{% url 'admin_manage_suggestions' %}" class="text-white hover:text-green-100 font-semibold transition border-b-2 border-white">Admin</a>
+                <span class="text-white">Welcome, {{ user.username }}!</span>
+                <a href="{% url 'logout' %}" class="bg-white text-green-600 px-6 py-2 rounded-lg font-semibold hover:bg-green-50 transition">
+                    Log Out
+                </a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="flex-grow bg-gray-50 py-8">
+    <div class="container mx-auto px-4">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Manage Campsite Suggestions</h1>
+            <p class="text-gray-600">Review and approve user-submitted campsites</p>
+        </div>
+
+        <!-- Message area for notifications -->
+        <div id="message-area" class="mb-6 hidden"></div>
+
+        {% if campsites %}
+            <!-- Campsites List -->
+            <div class="space-y-6">
+                {% for campsite in campsites %}
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition" data-campsite-id="{{ campsite.pk }}">
+                    <div class="flex flex-col md:flex-row">
+                        <!-- Thumbnail -->
+                        <div class="md:w-48 h-48 flex-shrink-0 bg-gray-200">
+                            {% if campsite.image_url %}
+                            <img src="{{ campsite.image_url }}?tr=w-200,h-200,fo-auto,f-auto,q-75" 
+                                 alt="{{ campsite.name }}" 
+                                 class="w-full h-full object-cover">
+                            {% else %}
+                            <div class="w-full h-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                                <svg class="w-16 h-16 text-white opacity-50" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Campsite Details -->
+                        <div class="flex-1 p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <h2 class="text-2xl font-bold text-gray-800">{{ campsite.name }}</h2>
+                                        <span class="status-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold {% if campsite.is_approved %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                            {% if campsite.is_approved %}
+                                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                Approved
+                                            {% else %}
+                                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                Pending
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-3">
+                                        <div>
+                                            <p class="text-gray-600 font-medium">Country:</p>
+                                            <p class="text-gray-800">{{ campsite.get_country_display }}</p>
+                                        </div>
+                                        {% if campsite.suggested_by %}
+                                        <div>
+                                            <p class="text-gray-600 font-medium">Suggested by:</p>
+                                            <p class="text-gray-800">{{ campsite.suggested_by.username }}</p>
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <p class="text-gray-600 font-medium">Created:</p>
+                                            <p class="text-gray-800">{{ campsite.created_at|date:"M d, Y" }}</p>
+                                        </div>
+                                        {% if campsite.phone_number %}
+                                        <div>
+                                            <p class="text-gray-600 font-medium">Phone:</p>
+                                            <p class="text-gray-800">{{ campsite.phone_number }}</p>
+                                        </div>
+                                        {% endif %}
+                                        {% if campsite.website %}
+                                        <div>
+                                            <p class="text-gray-600 font-medium">Website:</p>
+                                            <p class="text-gray-800"><a href="{{ campsite.website }}" target="_blank" class="text-green-600 hover:underline">Visit Site</a></p>
+                                        </div>
+                                        {% endif %}
+                                        {% if campsite.map_location %}
+                                        <div>
+                                            <p class="text-gray-600 font-medium">Location:</p>
+                                            <p class="text-gray-800 truncate">{{ campsite.map_location }}</p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <p class="text-gray-600 font-medium mb-1">Description:</p>
+                                        <p class="text-gray-700 text-sm">{{ campsite.description }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Toggle Button -->
+                                <button 
+                                    onclick="toggleApproval({{ campsite.pk }})" 
+                                    class="toggle-btn ml-4 px-4 py-2 rounded-md font-medium transition shadow {% if campsite.is_approved %}bg-yellow-500 hover:bg-yellow-600 text-white{% else %}bg-green-600 hover:bg-green-700 text-white{% endif %}">
+                                    {% if campsite.is_approved %}Unapprove{% else %}Approve{% endif %}
+                                </button>
+                            </div>
+
+                            <!-- Action Links -->
+                            <div class="flex gap-4 pt-4 border-t border-gray-200">
+                                <a href="{% url 'campsite_detail' campsite.pk %}" class="text-blue-600 hover:text-blue-700 font-medium text-sm">
+                                    View Details →
+                                </a>
+                                <a href="{% url 'campsite_edit' campsite.pk %}" class="text-green-600 hover:text-green-700 font-medium text-sm">
+                                    Edit
+                                </a>
+                                <a href="{% url 'campsite_delete' campsite.pk %}" class="text-red-600 hover:text-red-700 font-medium text-sm">
+                                    Delete
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div class="bg-white rounded-lg shadow-md p-12 text-center">
+                <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 class="text-2xl font-bold text-gray-700 mb-2">All Caught Up!</h3>
+                <p class="text-gray-600">There are no campsite suggestions to review.</p>
+            </div>
+        {% endif %}
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-800 text-white py-6 mt-auto">
+    <div class="container mx-auto px-4 text-center">
+        <p>&copy; {% now "Y" %} Euro Camp. All rights reserved.</p>
+    </div>
+</footer>
+
+<!-- JavaScript for toggle functionality -->
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function showMessage(message, type = 'success') {
+    const messageArea = document.getElementById('message-area');
+    const bgColor = type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+    messageArea.innerHTML = `<div class="p-4 rounded-lg ${bgColor}">${message}</div>`;
+    messageArea.classList.remove('hidden');
+    setTimeout(() => {
+        messageArea.classList.add('hidden');
+    }, 3000);
+}
+
+function toggleApproval(campsiteId) {
+    const csrftoken = getCookie('csrftoken');
+    const container = document.querySelector(`[data-campsite-id="${campsiteId}"]`);
+    const button = container.querySelector('.toggle-btn');
+    const statusBadge = container.querySelector('.status-badge');
+    
+    fetch(`/campsites/${campsiteId}/toggle-approval/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update button
+            if (data.is_approved) {
+                button.textContent = 'Unapprove';
+                button.className = 'toggle-btn ml-4 px-4 py-2 rounded-md font-medium transition shadow bg-yellow-500 hover:bg-yellow-600 text-white';
+                statusBadge.className = 'status-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800';
+                statusBadge.innerHTML = '<svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Approved';
+            } else {
+                button.textContent = 'Approve';
+                button.className = 'toggle-btn ml-4 px-4 py-2 rounded-md font-medium transition shadow bg-green-600 hover:bg-green-700 text-white';
+                statusBadge.className = 'status-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-800';
+                statusBadge.innerHTML = '<svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg> Pending';
+            }
+            showMessage(data.message, 'success');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('An error occurred. Please try again.', 'error');
+    });
+}
+</script>
+{% endblock %}

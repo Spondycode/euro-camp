@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from django.core.exceptions import PermissionDenied
+from django.views.decorators.http import require_POST
 from .models import Campsite
 from .forms import CampsiteForm
 from .utils import upload_campsite_image
@@ -176,3 +177,26 @@ def pending_campsites(request):
     """Display pending campsite suggestions (staff only)."""
     pending = Campsite.objects.filter(is_approved=False).select_related('suggested_by').order_by('created_at')
     return render(request, 'campsites/pending.html', {'pending_campsites': pending})
+
+
+@staff_member_required
+def admin_manage_suggestions(request):
+    """Admin page to manage all suggested campsites with toggle approval."""
+    # Get all campsites ordered by approval status (pending first), then by creation date
+    campsites = Campsite.objects.select_related('suggested_by').order_by('is_approved', '-created_at')
+    return render(request, 'campsites/admin_manage.html', {'campsites': campsites})
+
+
+@staff_member_required
+@require_POST
+def toggle_campsite_approval(request, pk):
+    """Toggle approval status of a campsite via AJAX."""
+    campsite = get_object_or_404(Campsite, pk=pk)
+    campsite.is_approved = not campsite.is_approved
+    campsite.save()
+    
+    return JsonResponse({
+        'success': True,
+        'is_approved': campsite.is_approved,
+        'message': f'{campsite.name} has been {"approved" if campsite.is_approved else "unapproved"}.'
+    })
