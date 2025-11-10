@@ -10,6 +10,7 @@
             <a href="{% url 'home' %}" class="text-3xl font-bold hover:text-green-100 transition">European Campsites</a>
             <nav class="flex items-center space-x-6">
                 <a href="{% url 'campsites_list' %}" class="text-white hover:text-green-100 font-semibold transition">Campsites</a>
+                <a href="{% url 'campsites_map' %}" class="text-white hover:text-green-100 font-semibold transition">Map View</a>
                 {% if user.is_staff or user.is_superuser %}
                 <a href="{% url 'admin_manage_suggestions' %}" class="text-white hover:text-green-100 font-semibold transition">Admin</a>
                 {% endif %}

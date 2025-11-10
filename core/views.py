@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
@@ -6,9 +7,10 @@ from django.http import HttpResponseForbidden, JsonResponse
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_POST
 from django.db.models import Count
+from django.urls import reverse
 from .models import Campsite, CampsiteLike
 from .forms import CampsiteForm
-from .utils import upload_campsite_image
+from .utils import upload_campsite_image, parse_lat_lng, get_campsites_within_radius
 
 
 def home(request):
@@ -245,3 +247,115 @@ def toggle_campsite_approval(request, pk):
         'is_approved': campsite.is_approved,
         'message': f'{campsite.name} has been {"approved" if campsite.is_approved else "unapproved"}.'
     })
+
+
+@login_required
+def campsites_map(request):
+    """Display campsites on an interactive map with two modes: country view or radius view."""
+    country_param = request.GET.get("country")
+    campsite_id_param = request.GET.get("campsite_id")
+
+    # Base queryset respecting approval rules
+    base_qs = Campsite.objects.all()
+    if not request.user.is_staff:
+        base_qs = base_qs.filter(is_approved=True)
+
+    # Annotate like counts
+    base_qs = base_qs.annotate(like_count=Count("likes", distinct=True))
+
+    # Get distinct countries for dropdown
+    countries = (
+        base_qs.exclude(country__isnull=True)
+               .exclude(country__exact="")
+               .values_list("country", flat=True)
+               .distinct()
+               .order_by("country")
+    )
+
+    mode = "country"
+    radius_km = 100
+    center_campsite = None
+    campsites_qs = base_qs
+
+    # Determine mode and filter campsites
+    if campsite_id_param:
+        mode = "radius"
+        center_campsite = get_object_or_404(base_qs, pk=campsite_id_param)
+        campsites_qs = get_campsites_within_radius(center_campsite, radius_km, base_qs)
+        # Re-apply like count annotation after radius filtering
+        campsites_qs = campsites_qs.annotate(like_count=Count("likes", distinct=True))
+    elif country_param:
+        mode = "country"
+        campsites_qs = base_qs.filter(country__iexact=country_param)
+    else:
+        mode = "country"
+
+    # Prepare marker data; skip invalid coords
+    campsite_points = []
+    for cs in campsites_qs:
+        coords = parse_lat_lng(cs)
+        if not coords:
+            continue
+        lat, lng = coords
+        campsite_points.append({
+            "id": cs.pk,
+            "name": cs.name,
+            "country": cs.get_country_display() if hasattr(cs, 'get_country_display') else cs.country,
+            "lat": lat,
+            "lng": lng,
+            "likes": cs.like_count,
+            "url": reverse("campsite_detail", args=[cs.pk]),
+        })
+
+    # Determine map center
+    center_lat, center_lng = 54.5260, 15.2551  # Europe fallback
+    if mode == "radius" and center_campsite:
+        c = parse_lat_lng(center_campsite)
+        if c:
+            center_lat, center_lng = c
+    elif campsite_points:
+        # Calculate centroid of available points
+        center_lat = sum(p["lat"] for p in campsite_points) / len(campsite_points)
+        center_lng = sum(p["lng"] for p in campsite_points) / len(campsite_points)
+
+    # Build title and back URL
+    count = len(campsite_points)
+    if mode == "radius" and center_campsite:
+        title = f"Campsites within {radius_km} km of {center_campsite.name}"
+        back_url = reverse("campsite_detail", args=[center_campsite.pk])
+    else:
+        if country_param:
+            # Get the full country name for display
+            country_display = dict(Campsite.COUNTRY_CHOICES).get(country_param, country_param)
+            title = f"Campsites in {country_display}"
+        else:
+            title = "All Campsites"
+        back_url = reverse("campsites_list")
+
+    # Build map config payload
+    map_config = {
+        "mode": mode,
+        "radius_km": radius_km,
+        "center": {"lat": center_lat, "lng": center_lng},
+        "centerCampsite": (
+            {"id": center_campsite.pk, "name": center_campsite.name}
+            if center_campsite else None
+        ),
+        "selectedCountry": country_param,
+        "campsites": campsite_points,
+        "tile": {
+            "url": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            "attribution": "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+        },
+    }
+
+    context = {
+        "title": title,
+        "count": count,
+        "countries": countries,
+        "selected_country": country_param,
+        "back_url": back_url,
+        "map_config_json": json.dumps(map_config),
+        "mode": mode,
+    }
+    return render(request, "campsites/map.html", context)

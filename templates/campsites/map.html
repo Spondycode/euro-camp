@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - Euro Camp{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<header class="bg-green-600 text-white shadow-lg">
+    <div class="container mx-auto px-4 py-6">
+        <div class="flex justify-between items-center">
+            <a href="{% url 'home' %}" class="text-3xl font-bold hover:text-green-100 transition">Euro Camp</a>
+            <nav class="flex items-center space-x-6">
+                <a href="{% url 'campsites_list' %}" class="text-white hover:text-green-100 font-semibold transition">Campsites</a>
+                <a href="{% url 'campsites_map' %}" class="text-white hover:text-green-100 font-semibold transition">Map View</a>
+                {% if user.is_staff or user.is_superuser %}
+                <a href="{% url 'admin_manage_suggestions' %}" class="text-white hover:text-green-100 font-semibold transition">Admin</a>
+                {% endif %}
+                <span class="text-white">Welcome, {{ user.username }}!</span>
+                <a href="{% url 'logout' %}" class="bg-white text-green-600 px-6 py-2 rounded-lg font-semibold hover:bg-green-50 transition">
+                    Log Out
+                </a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<!-- Page Controls -->
+<div class="bg-gray-50 border-b border-gray-200">
+    <div class="container mx-auto px-4 py-4">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">{{ title }}</h1>
+                <p class="text-sm text-gray-600 mt-1">
+                    Showing {{ count }} campsite{{ count|pluralize }}.
+                    {% if count == 0 %}
+                        <span class="text-amber-600">Try selecting a different country or view all campsites.</span>
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="flex items-center gap-3">
+                {% if mode != "radius" %}
+                <label for="countrySelect" class="text-sm font-medium text-gray-700">Filter:</label>
+                <select id="countrySelect" class="rounded-md border-gray-300 shadow-sm text-sm py-2 px-3 focus:ring-green-500 focus:border-green-500">
+                    <option value="">All Countries</option>
+                    {% for country_code in countries %}
+                    <option value="{{ country_code }}" {% if selected_country == country_code %}selected{% endif %}>
+                        {{ country_code }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% endif %}
+                <a href="{{ back_url }}" class="inline-flex items-center text-sm text-green-600 hover:text-green-700 font-medium">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Map Container -->
+<div class="w-full bg-gray-100">
+    <div class="relative w-full h-[calc(100vh-14rem)] min-h-[60vh]">
+        <div id="campsites-map" class="absolute inset-0"></div>
+        <div id="map-loading" class="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
+            <div class="flex items-center gap-3 bg-white px-6 py-4 rounded-lg shadow-lg">
+                <svg class="animate-spin h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                <span class="text-sm font-medium text-gray-700">Loading map…</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-gray-800 text-white py-6">
+    <div class="container mx-auto px-4 text-center">
+        <p>&copy; {% now "Y" %} Euro Camp. All rights reserved.</p>
+    </div>
+</footer>
+
+<script id="map-data" type="application/json">{{ map_config_json|safe }}</script>
+<script src="{% static 'js/campsites-map.js' %}" defer></script>
+{% endblock %}

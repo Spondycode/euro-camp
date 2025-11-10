@@ -20,7 +20,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from core.views import (home, campsites_list, campsite_detail, campsite_create, campsite_edit, campsite_delete,
                         campsite_suggest, my_suggestions, pending_campsites, admin_manage_suggestions,
-                        toggle_campsite_approval)
+                        toggle_campsite_approval, campsites_map)
 from accounts.views import login_view, register_view, logout_view
 
 
@@ -35,6 +35,7 @@ urlpatterns = [
     
     # Campsites
     path('campsites/', campsites_list, name='campsites_list'),
+    path('campsites/map/', campsites_map, name='campsites_map'),
     path('campsites/create/', campsite_create, name='campsite_create'),
     path('campsites/suggest/', campsite_suggest, name='campsite_suggest'),
     path('campsites/my-suggestions/', my_suggestions, name='my_suggestions'),

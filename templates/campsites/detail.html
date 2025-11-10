@@ -10,6 +10,7 @@
             <a href="{% url 'home' %}" class="text-3xl font-bold hover:text-green-100 transition">Euro Camp</a>
             <nav class="flex items-center space-x-6">
                 <a href="{% url 'campsites_list' %}" class="text-white hover:text-green-100 font-semibold transition">Campsites</a>
+                <a href="{% url 'campsites_map' %}" class="text-white hover:text-green-100 font-semibold transition">Map View</a>
                 <span class="text-white">Welcome, {{ user.username }}!</span>
                 <a href="{% url 'logout' %}" class="bg-white text-green-600 px-6 py-2 rounded-lg font-semibold hover:bg-green-50 transition">
                     Log Out
@@ -183,6 +184,16 @@
                             </div>
                         </div>
                         {% endif %}
+                        
+                        <!-- View Nearby Campsites Button -->
+                        <div class="mt-6 pt-4 border-t border-gray-200">
+                            <a href="{% url 'campsites_map' %}?campsite_id={{ campsite.pk }}" class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-white font-semibold hover:bg-green-700 transition shadow-md">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                                </svg>
+                                View Nearby Campsites on Map (100km radius)
+                            </a>
+                        </div>
                     </div>
                 </div>
 

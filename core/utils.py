@@ -1,7 +1,8 @@
 import os
 import base64
+import math
 from functools import lru_cache
-from typing import Optional
+from typing import Optional, Tuple
 from imagekitio import ImageKit
 from imagekitio.models.UploadFileRequestOptions import UploadFileRequestOptions
 
@@ -129,3 +130,142 @@ def imagekit_transformed_url(
     
     sep = "&" if "?" in original_url else "?"
     return f"{original_url}{sep}tr={','.join(parts)}"
+
+
+def parse_lat_lng(source) -> Optional[Tuple[float, float]]:
+    """
+    Parse latitude and longitude from various sources.
+    
+    Args:
+        source: Can be a Campsite instance, "lat,lng" string, or (lat, lng) tuple
+        
+    Returns:
+        Tuple of (latitude, longitude) or None if invalid
+    """
+    if source is None:
+        return None
+    
+    # If it's a Campsite instance, try properties first
+    lat = getattr(source, "latitude", None)
+    lng = getattr(source, "longitude", None)
+    if lat is not None and lng is not None:
+        try:
+            lat_float = float(lat)
+            lng_float = float(lng)
+            if -90 <= lat_float <= 90 and -180 <= lng_float <= 180:
+                return lat_float, lng_float
+        except (TypeError, ValueError):
+            pass
+    
+    # Try map_location attribute
+    map_location = getattr(source, "map_location", None)
+    if isinstance(map_location, str):
+        parts = map_location.split(",")
+        if len(parts) == 2:
+            try:
+                lat_float = float(parts[0].strip())
+                lng_float = float(parts[1].strip())
+                if -90 <= lat_float <= 90 and -180 <= lng_float <= 180:
+                    return lat_float, lng_float
+            except ValueError:
+                return None
+    
+    # If it's a tuple/list
+    if isinstance(source, (tuple, list)) and len(source) == 2:
+        try:
+            lat_float = float(source[0])
+            lng_float = float(source[1])
+            if -90 <= lat_float <= 90 and -180 <= lng_float <= 180:
+                return lat_float, lng_float
+        except (TypeError, ValueError):
+            return None
+    
+    # If it's a raw string "lat,lng"
+    if isinstance(source, str):
+        parts = source.split(",")
+        if len(parts) == 2:
+            try:
+                lat_float = float(parts[0].strip())
+                lng_float = float(parts[1].strip())
+                if -90 <= lat_float <= 90 and -180 <= lng_float <= 180:
+                    return lat_float, lng_float
+            except ValueError:
+                return None
+    
+    return None
+
+
+def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """
+    Calculate the great circle distance between two points on Earth using Haversine formula.
+    
+    Args:
+        lat1: Latitude of first point in degrees
+        lon1: Longitude of first point in degrees
+        lat2: Latitude of second point in degrees
+        lon2: Longitude of second point in degrees
+        
+    Returns:
+        Distance in kilometers
+    """
+    R = 6371.0  # Earth's radius in kilometers
+    
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+    
+    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    
+    return R * c
+
+
+def get_campsites_within_radius(center_campsite, radius_km: float, base_qs):
+    """
+    Get campsites within a specified radius of a center campsite.
+    
+    Args:
+        center_campsite: Campsite instance to use as center point
+        radius_km: Radius in kilometers
+        base_qs: Base queryset to filter from
+        
+    Returns:
+        Queryset of campsites within the radius
+    """
+    center = parse_lat_lng(center_campsite)
+    if not center:
+        return base_qs.none()
+    
+    lat0, lng0 = center
+    
+    # Bounding box approximation to reduce candidate set
+    # 1 degree of latitude ≈ 111.32 km
+    lat_delta = radius_km / 111.32
+    # 1 degree of longitude varies by latitude
+    cos_lat0 = max(math.cos(math.radians(lat0)), 1e-6)
+    lng_delta = radius_km / (111.32 * cos_lat0)
+    
+    min_lat = lat0 - lat_delta
+    max_lat = lat0 + lat_delta
+    min_lng = lng0 - lng_delta
+    max_lng = lng0 + lng_delta
+    
+    # Filter candidates within bounding box and check exact distance
+    ids = []
+    for cs in base_qs:
+        coords = parse_lat_lng(cs)
+        if not coords:
+            continue
+        
+        lat, lng = coords
+        
+        # Quick bounding box check
+        if lat < min_lat or lat > max_lat or lng < min_lng or lng > max_lng:
+            continue
+        
+        # Exact distance check
+        if calculate_distance(lat0, lng0, lat, lng) <= radius_km:
+            ids.append(cs.pk)
+    
+    return base_qs.model.objects.filter(pk__in=ids)
