@@ -96,6 +96,36 @@ class Campsite(models.Model):
     def __str__(self):
         status = "Approved" if self.is_approved else "Pending"
         return f"{self.name} - {self.get_country_display()} ({status})"
+    
+    @property
+    def latitude(self):
+        """Extract latitude from map_location field (expects 'lat,lng' format)."""
+        if not self.map_location:
+            return None
+        try:
+            parts = self.map_location.split(',')
+            if len(parts) >= 2:
+                lat = float(parts[0].strip())
+                if -90 <= lat <= 90:
+                    return lat
+        except (ValueError, AttributeError):
+            pass
+        return None
+    
+    @property
+    def longitude(self):
+        """Extract longitude from map_location field (expects 'lat,lng' format)."""
+        if not self.map_location:
+            return None
+        try:
+            parts = self.map_location.split(',')
+            if len(parts) >= 2:
+                lng = float(parts[1].strip())
+                if -180 <= lng <= 180:
+                    return lng
+        except (ValueError, AttributeError):
+            pass
+        return None
 
 
 class CampsiteLike(models.Model):
