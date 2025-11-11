@@ -32,13 +32,14 @@
                 <p class="text-gray-600">Browse and discover campsites across Europe</p>
             </div>
             
-            <div class="flex items-center gap-2">
-                <label for="countryFilter" class="text-sm font-medium text-gray-700">Filter by country:</label>
-                <select
-                    id="countryFilter"
-                    class="min-w-[14rem] rounded-md border border-green-600 text-green-800 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 cursor-pointer"
-                    aria-label="Filter campsites by country"
-                >
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <div class="flex items-center gap-2">
+                    <label for="countryFilter" class="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by country:</label>
+                    <select
+                        id="countryFilter"
+                        class="min-w-[14rem] rounded-md border border-green-600 text-green-800 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 cursor-pointer"
+                        aria-label="Filter campsites by country"
+                    >
                     <option value="all" selected>All Countries</option>
                     <option value="AL">Albania</option>
                     <option value="AD">Andorra</option>
@@ -87,6 +88,14 @@
                     <option value="GB">United Kingdom</option>
                     <option value="VA">Vatican City</option>
                 </select>
+                </div>
+                <input
+                    type="text"
+                    id="campsiteSearch"
+                    placeholder="Search by name or town"
+                    class="min-w-[14rem] rounded-md border border-green-600 text-gray-800 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    aria-label="Search campsites by name or town"
+                />
             </div>
         </div>
         
@@ -134,7 +143,7 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {% for campsite in premium_campsites %}
-                <div class="campsite-card bg-gradient-to-br from-yellow-50 to-white rounded-lg shadow-lg hover:shadow-2xl transition overflow-hidden border-2 border-yellow-400" data-country="{{ campsite.country }}">
+                <div class="campsite-card bg-gradient-to-br from-yellow-50 to-white rounded-lg shadow-lg hover:shadow-2xl transition overflow-hidden border-2 border-yellow-400" data-country="{{ campsite.country }}" data-name="{{ campsite.name }}" data-town="{{ campsite.town|default_if_none:'' }}">
                     {% if campsite.image_url %}
                     <a href="{% url 'campsite_detail' campsite.pk %}" class="block w-full h-48 overflow-hidden relative group">
                         <img src="{{ campsite.image_url }}?tr=w-400,h-300,fo-auto,f-auto,q-75" 
@@ -228,14 +237,14 @@
 
         <!-- Empty State for No Results -->
         <div
-            id="countryEmptyState"
+            id="emptyState"
             class="hidden text-center text-gray-600 bg-white border border-gray-200 rounded-lg py-12 mt-6 shadow-md"
         >
             <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
             <h3 class="text-xl font-semibold text-gray-800 mb-2">No Campsites Found</h3>
-            <p class="text-gray-600">No campsites found for the selected country. Try selecting a different country.</p>
+            <p class="text-gray-600">No campsites match your filters. Try changing the country or search term.</p>
         </div>
 
         <!-- Regular Campsites Section -->
@@ -245,7 +254,7 @@
         </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {% for campsite in campsites %}
-                <div class="campsite-card bg-white rounded-lg shadow-md hover:shadow-xl transition overflow-hidden" data-country="{{ campsite.country }}">
+                <div class="campsite-card bg-white rounded-lg shadow-md hover:shadow-xl transition overflow-hidden" data-country="{{ campsite.country }}" data-name="{{ campsite.name }}" data-town="{{ campsite.town|default_if_none:'' }}">
                     {% if campsite.image_url %}
                     <a href="{% url 'campsite_detail' campsite.pk %}" class="block w-full h-48 overflow-hidden group">
                         <img src="{{ campsite.image_url }}?tr=w-400,h-300,fo-auto,f-auto,q-75" 
@@ -350,5 +359,6 @@
 <!-- Likes JavaScript -->
 {% load static %}
 <script src="{% static 'js/likes.js' %}"></script>
+<script defer src="{% static 'js/campsite-search.js' %}"></script>
 <script defer src="{% static 'js/country-filter.js' %}"></script>
 {% endblock %}
