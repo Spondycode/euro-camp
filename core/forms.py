@@ -15,7 +15,7 @@ class CampsiteForm(forms.ModelForm):
     
     class Meta:
         model = Campsite
-        fields = ['name', 'description', 'map_location', 'website', 'phone_number', 'country']
+        fields = ['name', 'town', 'description', 'map_location', 'website', 'phone_number', 'country']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 5}),
         }
