@@ -46,16 +46,23 @@
         <div class="bg-white rounded-lg shadow-xl overflow-hidden">
             {% if product.image_url %}
             <!-- Product Image - Clickable to Amazon -->
-            <a href="{{ product.amazon_link }}" target="_blank" rel="noopener noreferrer" class="block w-full h-96 overflow-hidden group relative">
-                <img src="{{ product.image_url }}?tr=w-1200,h-800,fo-auto,f-auto,q-80" 
-                     alt="{{ product.name }}" 
-                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center pointer-events-none">
-                    <span class="opacity-0 group-hover:opacity-100 bg-white px-4 py-2 rounded-lg font-semibold text-gray-800 shadow-lg transition-opacity">
-                        Click to view on Amazon
-                    </span>
+            <div class="w-full h-96 overflow-hidden bg-gray-100">
+                <a href="{{ product.amazon_link }}" target="_blank" rel="noopener noreferrer" class="block w-full h-full">
+                    <img src="{{ product.image_url }}?tr=w-1200,h-800,fo-auto,f-auto,q-80" 
+                         alt="{{ product.name }}" 
+                         class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300">
+                </a>
+            </div>
+            {% else %}
+            <!-- No image provided -->
+            <div class="w-full h-96 bg-gradient-to-br from-green-200 to-green-300 flex items-center justify-center">
+                <div class="text-center">
+                    <svg class="w-24 h-24 text-green-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                    </svg>
+                    <p class="text-green-700 text-lg font-semibold">No image available</p>
                 </div>
-            </a>
+            </div>
             {% endif %}
             
             <!-- Header Section -->
