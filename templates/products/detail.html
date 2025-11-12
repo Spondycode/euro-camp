@@ -46,11 +46,11 @@
         <div class="bg-white rounded-lg shadow-xl overflow-hidden">
             {% if product.image_url %}
             <!-- Product Image - Clickable to Amazon -->
-            <div class="w-full h-96 overflow-hidden bg-gray-100">
-                <a href="{{ product.amazon_link }}" target="_blank" rel="noopener noreferrer" class="block w-full h-full">
+            <div class="w-full h-96 bg-gray-100 flex items-center justify-center">
+                <a href="{{ product.amazon_link }}" target="_blank" rel="noopener noreferrer" class="block max-w-full max-h-full">
                     <img src="{{ product.image_url }}?tr=w-1200,h-800,fo-auto,f-auto,q-80" 
                          alt="{{ product.name }}" 
-                         class="w-full h-full object-cover hover:opacity-90 transition-opacity duration-300">
+                         class="max-w-full max-h-96 object-contain hover:opacity-90 transition-opacity duration-300">
                 </a>
             </div>
             {% else %}
