@@ -8,9 +8,9 @@ from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_POST
 from django.db.models import Count
 from django.urls import reverse
-from .models import Campsite, CampsiteLike
-from .forms import CampsiteForm
-from .utils import upload_campsite_image, parse_lat_lng, get_campsites_within_radius
+from .models import Campsite, CampsiteLike, Product
+from .forms import CampsiteForm, ProductForm
+from .utils import upload_campsite_image, upload_product_image, parse_lat_lng, get_campsites_within_radius
 
 
 def home(request):
@@ -359,3 +359,112 @@ def campsites_map(request):
         "mode": mode,
     }
     return render(request, "campsites/map.html", context)
+
+
+# Product Views
+
+@login_required
+def products_list(request):
+    """Display list of featured camping products."""
+    products = Product.objects.filter(is_featured=True).order_by('name')
+    
+    # Check if user is super admin
+    can_modify = request.user.is_super_admin or request.user.is_superuser
+    
+    return render(request, 'products/list.html', {
+        'products': products,
+        'can_modify': can_modify
+    })
+
+
+@login_required
+def product_detail(request, pk):
+    """Display details of a specific product."""
+    product = get_object_or_404(Product, pk=pk)
+    
+    # Check if user can modify (super admin only)
+    can_modify = request.user.is_super_admin or request.user.is_superuser
+    
+    return render(request, 'products/detail.html', {
+        'product': product,
+        'can_modify': can_modify
+    })
+
+
+@login_required
+def product_create(request):
+    """Create a new product (super admins only)."""
+    # Check permissions
+    if not (request.user.is_super_admin or request.user.is_superuser):
+        return HttpResponseForbidden("You don't have permission to create products.")
+    
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            product = form.save(commit=False)
+            product.created_by = request.user
+            
+            # Handle image upload
+            uploaded_image = form.cleaned_data.get('image')
+            if uploaded_image:
+                try:
+                    product.image_url = upload_product_image(uploaded_image)
+                except Exception as e:
+                    messages.error(request, f'Image upload failed: {e}')
+            
+            product.save()
+            messages.success(request, f'{product.name} has been created successfully!')
+            return redirect('product_detail', pk=product.pk)
+    else:
+        form = ProductForm()
+    
+    return render(request, 'products/create.html', {'form': form})
+
+
+@login_required
+def product_edit(request, pk):
+    """Edit a product (super admins only)."""
+    product = get_object_or_404(Product, pk=pk)
+    
+    # Check permissions
+    if not (request.user.is_super_admin or request.user.is_superuser):
+        return HttpResponseForbidden("You don't have permission to edit products.")
+    
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            product = form.save(commit=False)
+            
+            # Handle image upload
+            uploaded_image = form.cleaned_data.get('image')
+            if uploaded_image:
+                try:
+                    product.image_url = upload_product_image(uploaded_image)
+                except Exception as e:
+                    messages.error(request, f'Image upload failed: {e}')
+            
+            product.save()
+            messages.success(request, f'{product.name} has been updated successfully!')
+            return redirect('product_detail', pk=product.pk)
+    else:
+        form = ProductForm(instance=product)
+    
+    return render(request, 'products/edit.html', {'form': form, 'product': product})
+
+
+@login_required
+def product_delete(request, pk):
+    """Delete a product (super admins only)."""
+    product = get_object_or_404(Product, pk=pk)
+    
+    # Check permissions
+    if not (request.user.is_super_admin or request.user.is_superuser):
+        return HttpResponseForbidden("You don't have permission to delete products.")
+    
+    if request.method == 'POST':
+        product_name = product.name
+        product.delete()
+        messages.success(request, f'{product_name} has been deleted successfully!')
+        return redirect('products_list')
+    
+    return render(request, 'products/delete.html', {'product': product})

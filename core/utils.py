@@ -87,6 +87,66 @@ def upload_campsite_image(django_file, folder: str = "campsites") -> str:
         raise RuntimeError(f"ImageKit upload failed: {e}\nDetails: {error_details}")
 
 
+def upload_product_image(django_file, folder: str = "products") -> str:
+    """
+    Upload a product image to ImageKit.
+    
+    Args:
+        django_file: Django UploadedFile object
+        folder: Folder path in ImageKit storage
+        
+    Returns:
+        str: URL of the uploaded image
+        
+    Raises:
+        RuntimeError: If upload fails
+    """
+    client = get_imagekit()
+    file_name = getattr(django_file, "name", "product-upload")
+    
+    try:
+        # Read file content as bytes
+        if hasattr(django_file, "seek"):
+            try:
+                django_file.seek(0)
+            except Exception:
+                pass
+        
+        file_content = django_file.read()
+        
+        # Convert to base64 string (required by ImageKit SDK)
+        file_base64 = base64.b64encode(file_content).decode('utf-8')
+        
+        # Create options object
+        options = UploadFileRequestOptions(
+            folder=f"/{folder}",
+            use_unique_file_name=True,
+        )
+        
+        # Upload file to ImageKit
+        res = client.upload_file(
+            file=file_base64,
+            file_name=file_name,
+            options=options,
+        )
+        
+        # Extract URL from response (handle both dict and object)
+        if isinstance(res, dict):
+            url = res.get("url")
+        else:
+            url = getattr(res, "url", None)
+        
+        if not url:
+            raise RuntimeError("Upload succeeded but no URL returned.")
+        
+        return url
+    
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        raise RuntimeError(f"ImageKit upload failed: {e}\nDetails: {error_details}")
+
+
 def imagekit_transformed_url(
     original_url: str,
     width: Optional[int] = None,

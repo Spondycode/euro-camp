@@ -20,7 +20,8 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from core.views import (home, campsites_list, campsite_detail, campsite_create, campsite_edit, campsite_delete,
                         campsite_suggest, my_suggestions, pending_campsites, admin_manage_suggestions,
-                        toggle_campsite_approval, campsites_map)
+                        toggle_campsite_approval, campsites_map,
+                        products_list, product_detail, product_create, product_edit, product_delete)
 from accounts.views import login_view, register_view, logout_view
 
 
@@ -45,6 +46,13 @@ urlpatterns = [
     path('campsites/<int:pk>/edit/', campsite_edit, name='campsite_edit'),
     path('campsites/<int:pk>/delete/', campsite_delete, name='campsite_delete'),
     path('campsites/<int:pk>/toggle-approval/', toggle_campsite_approval, name='toggle_campsite_approval'),
+    
+    # Products
+    path('products/', products_list, name='products_list'),
+    path('products/create/', product_create, name='product_create'),
+    path('products/<int:pk>/', product_detail, name='product_detail'),
+    path('products/<int:pk>/edit/', product_edit, name='product_edit'),
+    path('products/<int:pk>/delete/', product_delete, name='product_delete'),
     
     path('admin/', admin.site.urls),
 

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Euro Camp{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<header class="bg-green-600 text-white shadow-lg">
+    <div class="container mx-auto px-4 py-6">
+        <div class="flex justify-between items-center">
+            <a href="{% url 'home' %}" class="text-3xl font-bold hover:text-green-100 transition">Euro Camp</a>
+            <nav class="flex items-center space-x-6">
+                <a href="{% url 'campsites_list' %}" class="text-white hover:text-green-100 font-semibold transition">Campsites</a>
+                <a href="{% url 'campsites_map' %}" class="text-white hover:text-green-100 font-semibold transition">Map View</a>
+                <a href="{% url 'products_list' %}" class="text-white hover:text-green-100 font-semibold transition">Products</a>
+                <span class="text-white">Welcome, {{ user.username }}!</span>
+                <a href="{% url 'logout' %}" class="bg-white text-green-600 px-6 py-2 rounded-lg font-semibold hover:bg-green-50 transition">
+                    Log Out
+                </a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="flex-grow bg-gray-50 py-8">
+    <div class="container mx-auto px-4">
+        <!-- Back Button -->
+        <div class="mb-6">
+            <a href="{% url 'products_list' %}" class="inline-flex items-center text-green-600 hover:text-green-700 font-semibold">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Back to Products
+            </a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+            <div class="mb-6 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Product Details Card -->
+        <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+            {% if product.image_url %}
+            <!-- Product Image - Clickable to Amazon -->
+            <a href="{{ product.amazon_link }}" target="_blank" rel="noopener noreferrer" class="block w-full h-96 overflow-hidden group">
+                <img src="{{ product.image_url }}?tr=w-1200,h-800,fo-auto,f-auto,q-80" 
+                     alt="{{ product.name }}" 
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center">
+                    <span class="opacity-0 group-hover:opacity-100 bg-white px-4 py-2 rounded-lg font-semibold text-gray-800 shadow-lg transition-opacity">
+                        Click to view on Amazon
+                    </span>
+                </div>
+            </a>
+            {% endif %}
+            
+            <!-- Header Section -->
+            <div class="bg-green-600 text-white p-8">
+                <h1 class="text-4xl font-bold">{{ product.name }}</h1>
+            </div>
+
+            <!-- Content Section -->
+            <div class="p-8">
+                <!-- Description -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Product Description
+                    </h2>
+                    <p class="text-gray-700 text-lg leading-relaxed whitespace-pre-line">{{ product.description }}</p>
+                </div>
+
+                <!-- Buy from Amazon Button -->
+                <div class="bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-200 rounded-lg p-8 text-center">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Ready to Buy?</h2>
+                    <a href="{{ product.amazon_link }}" 
+                       target="_blank" 
+                       rel="noopener noreferrer nofollow"
+                       class="inline-flex items-center px-8 py-4 bg-green-600 text-white text-xl font-bold rounded-lg hover:bg-green-700 transition shadow-lg hover:shadow-xl">
+                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        Buy from Amazon
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                    </a>
+                    <p class="text-sm text-gray-600 mt-3">Opens in a new tab</p>
+                </div>
+
+                <!-- Admin Actions -->
+                {% if can_modify %}
+                <div class="mt-8 pt-6 border-t border-gray-200 flex gap-4">
+                    <a href="{% url 'product_edit' product.pk %}" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Edit Product
+                    </a>
+                    <a href="{% url 'product_delete' product.pk %}" class="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition shadow">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Delete Product
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
