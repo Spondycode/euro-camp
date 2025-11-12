@@ -82,6 +82,25 @@ class CampsiteAdmin(admin.ModelAdmin):
                             error_rows.append(f"Row {row_num}: Invalid country code '{country_code}'")
                             continue
                         
+                        # Validate map_location format (lat,lng)
+                        map_location = row['map_location'].strip()
+                        try:
+                            parts = map_location.split(',')
+                            if len(parts) != 2:
+                                error_rows.append(f"Row {row_num}: map_location must be 'latitude,longitude' format")
+                                continue
+                            lat = float(parts[0].strip())
+                            lng = float(parts[1].strip())
+                            if not (-90 <= lat <= 90):
+                                error_rows.append(f"Row {row_num}: Invalid latitude {lat} (must be between -90 and 90)")
+                                continue
+                            if not (-180 <= lng <= 180):
+                                error_rows.append(f"Row {row_num}: Invalid longitude {lng} (must be between -180 and 180)")
+                                continue
+                        except (ValueError, IndexError):
+                            error_rows.append(f"Row {row_num}: map_location must be valid 'latitude,longitude' format")
+                            continue
+                        
                         # Create campsite
                         campsite = Campsite(
                             name=row['name'].strip(),

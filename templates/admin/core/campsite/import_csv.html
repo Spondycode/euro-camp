@@ -15,7 +15,7 @@
             <li><strong>name</strong> - Campsite name</li>
             <li><strong>town</strong> - Town/city where campsite is located</li>
             <li><strong>description</strong> - Full description of the campsite</li>
-            <li><strong>map_location</strong> - Embedded Google Maps iframe HTML</li>
+            <li><strong>map_location</strong> - GPS coordinates in format: latitude,longitude (e.g., 41.550549, 2.483380)</li>
             <li><strong>country</strong> - Two-letter country code (see valid codes below)</li>
         </ul>
         
@@ -39,8 +39,8 @@
         
         <h3 style="margin-top: 20px;">Example CSV Format:</h3>
         <pre style="background: white; padding: 10px; border: 1px solid #ddd; overflow-x: auto;">name,town,description,map_location,country,website,phone_number,is_approved,is_premium
-Sunshine Camping,Barcelona,"Beautiful campsite near the beach","&lt;iframe src='...'&gt;&lt;/iframe&gt;",ES,https://example.com,+34123456789,true,false
-Mountain View Camp,Innsbruck,"Alpine camping experience","&lt;iframe src='...'&gt;&lt;/iframe&gt;",AT,https://example.com,+43987654321,true,true</pre>
+Sunshine Camping,Barcelona,"Beautiful campsite near the beach","41.550549, 2.483380",ES,https://example.com,+34123456789,true,false
+Mountain View Camp,Innsbruck,"Alpine camping experience","47.269217, 11.404102",AT,https://example.com,+43987654321,true,true</pre>
         
         <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 15px; margin-top: 20px;">
             <strong>⚠️ Important Notes:</strong>
@@ -48,7 +48,8 @@ Mountain View Camp,Innsbruck,"Alpine camping experience","&lt;iframe src='...'&g
                 <li>The first row must contain column headers</li>
                 <li>All imported campsites will be attributed to you as the creator</li>
                 <li>Ensure your CSV file is UTF-8 encoded</li>
-                <li>For the map_location field, escape HTML characters properly (e.g., use &amp;lt; for &lt;)</li>
+                <li>For the map_location field, use decimal degrees format: latitude,longitude (spaces optional)</li>
+                <li>Latitude must be between -90 and 90, longitude between -180 and 180</li>
                 <li>Invalid rows will be skipped and reported - valid rows will still be imported</li>
             </ul>
         </div>
