@@ -1,0 +1,93 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 20px auto;">
+    <h1>{{ title }}</h1>
+    
+    <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 20px; margin: 20px 0;">
+        <h2 style="margin-top: 0;">CSV Format Instructions</h2>
+        
+        <p>Please ensure your CSV file follows this format:</p>
+        
+        <h3>Required Columns (must be present and non-empty):</h3>
+        <ul>
+            <li><strong>name</strong> - Campsite name</li>
+            <li><strong>town</strong> - Town/city where campsite is located</li>
+            <li><strong>description</strong> - Full description of the campsite</li>
+            <li><strong>map_location</strong> - Embedded Google Maps iframe HTML</li>
+            <li><strong>country</strong> - Two-letter country code (see valid codes below)</li>
+        </ul>
+        
+        <h3>Optional Columns:</h3>
+        <ul>
+            <li><strong>website</strong> - Campsite website URL</li>
+            <li><strong>phone_number</strong> - Contact phone number</li>
+            <li><strong>image_url</strong> - ImageKit URL for campsite image</li>
+            <li><strong>is_approved</strong> - Approval status (true/false, 1/0, yes/no) - defaults to false</li>
+            <li><strong>is_premium</strong> - Premium status (true/false, 1/0, yes/no) - defaults to false</li>
+        </ul>
+        
+        <h3>Valid Country Codes:</h3>
+        <div style="columns: 3; column-gap: 20px;">
+            <ul style="margin: 0;">
+                {% for code, name in country_choices %}
+                    <li><strong>{{ code }}</strong> - {{ name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <h3 style="margin-top: 20px;">Example CSV Format:</h3>
+        <pre style="background: white; padding: 10px; border: 1px solid #ddd; overflow-x: auto;">name,town,description,map_location,country,website,phone_number,is_approved,is_premium
+Sunshine Camping,Barcelona,"Beautiful campsite near the beach","&lt;iframe src='...'&gt;&lt;/iframe&gt;",ES,https://example.com,+34123456789,true,false
+Mountain View Camp,Innsbruck,"Alpine camping experience","&lt;iframe src='...'&gt;&lt;/iframe&gt;",AT,https://example.com,+43987654321,true,true</pre>
+        
+        <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 15px; margin-top: 20px;">
+            <strong>⚠️ Important Notes:</strong>
+            <ul style="margin-bottom: 0;">
+                <li>The first row must contain column headers</li>
+                <li>All imported campsites will be attributed to you as the creator</li>
+                <li>Ensure your CSV file is UTF-8 encoded</li>
+                <li>For the map_location field, escape HTML characters properly (e.g., use &amp;lt; for &lt;)</li>
+                <li>Invalid rows will be skipped and reported - valid rows will still be imported</li>
+            </ul>
+        </div>
+    </div>
+    
+    <form method="post" enctype="multipart/form-data" style="margin: 30px 0;">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 20px;">
+            <label for="csv_file" style="display: block; margin-bottom: 5px; font-weight: bold;">
+                Select CSV File:
+            </label>
+            <input type="file" name="csv_file" id="csv_file" accept=".csv" required
+                   style="padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <button type="submit" class="default" style="padding: 10px 20px; font-size: 14px;">
+                Import CSV
+            </button>
+            <a href="{% url 'admin:core_campsite_changelist' %}" class="button cancel" 
+               style="margin-left: 10px; padding: 10px 20px; text-decoration: none;">
+                Cancel
+            </a>
+        </div>
+    </form>
+    
+    {% if messages %}
+        <div style="margin-top: 20px;">
+            {% for message in messages %}
+                <div class="{% if message.tags %}{{ message.tags }}{% endif %}" 
+                     style="padding: 15px; margin-bottom: 10px; border-radius: 4px;
+                            {% if 'error' in message.tags %}background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24;{% endif %}
+                            {% if 'warning' in message.tags %}background: #fff3cd; border: 1px solid #ffc107; color: #856404;{% endif %}
+                            {% if 'success' in message.tags %}background: #d4edda; border: 1px solid #c3e6cb; color: #155724;{% endif %}">
+                    {{ message|linebreaks }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
