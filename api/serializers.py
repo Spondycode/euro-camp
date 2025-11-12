@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from core.models import Campsite
+from core.models import Campsite, Product
 
 
 class CampsiteSerializer(serializers.ModelSerializer):
@@ -19,3 +19,10 @@ class CampsiteSerializer(serializers.ModelSerializer):
             return obj.id in liked_ids
         # Fallback (avoid N+1 where possible; views will pass liked_ids)
         return obj.likes.filter(user=request.user).exists()
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'description', 'image_url', 'amazon_link', 'is_featured', 'created_by', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at', 'created_by']

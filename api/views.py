@@ -1,11 +1,12 @@
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, BasePermission
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import authentication, status
-from core.models import Campsite, CampsiteLike
+from rest_framework import authentication, status, generics
+from core.models import Campsite, CampsiteLike, Product
+from .serializers import ProductSerializer
 
 
 @api_view(["GET"])
@@ -51,3 +52,58 @@ class CampsiteLikeStatusView(APIView):
             {'is_liked': is_liked, 'like_count': like_count},
             status=status.HTTP_200_OK
         )
+
+
+# Custom Permission
+
+class IsSuperAdmin(BasePermission):
+    """Custom permission to only allow super admins."""
+    
+    def has_permission(self, request, view):
+        return (
+            request.user and 
+            request.user.is_authenticated and 
+            (request.user.is_super_admin or request.user.is_superuser)
+        )
+
+
+# Product API Views
+
+class ProductListAPIView(generics.ListAPIView):
+    """List all featured products."""
+    serializer_class = ProductSerializer
+    permission_classes = [AllowAny]
+    
+    def get_queryset(self):
+        return Product.objects.filter(is_featured=True).order_by('name')
+
+
+class ProductDetailAPIView(generics.RetrieveAPIView):
+    """Retrieve a single product."""
+    serializer_class = ProductSerializer
+    permission_classes = [AllowAny]
+    queryset = Product.objects.all()
+
+
+class ProductCreateAPIView(generics.CreateAPIView):
+    """Create a new product (super admin only)."""
+    serializer_class = ProductSerializer
+    permission_classes = [IsSuperAdmin]
+    queryset = Product.objects.all()
+    
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+
+class ProductUpdateAPIView(generics.UpdateAPIView):
+    """Update a product (super admin only)."""
+    serializer_class = ProductSerializer
+    permission_classes = [IsSuperAdmin]
+    queryset = Product.objects.all()
+
+
+class ProductDestroyAPIView(generics.DestroyAPIView):
+    """Delete a product (super admin only)."""
+    serializer_class = ProductSerializer
+    permission_classes = [IsSuperAdmin]
+    queryset = Product.objects.all()
