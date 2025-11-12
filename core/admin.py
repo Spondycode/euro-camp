@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Campsite
+from .models import Campsite, Product
 
 
 def approve_campsites(modeladmin, request, queryset):
@@ -27,3 +27,13 @@ class CampsiteAdmin(admin.ModelAdmin):
     list_editable = ('is_premium',)
     
     readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ('name', 'is_featured', 'created_by', 'created_at')
+    list_filter = ('is_featured', 'created_at')
+    search_fields = ('name', 'description')
+    list_editable = ('is_featured',)
+    readonly_fields = ('created_at', 'updated_at')
+    ordering = ('name',)

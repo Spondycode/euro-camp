@@ -156,3 +156,42 @@ class CampsiteLike(models.Model):
 
     def __str__(self):
         return f"{self.user.username} likes {self.campsite.name}"
+
+
+class Product(models.Model):
+    """Model representing a camping product available for purchase."""
+    
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    image_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="Product image hosted externally (e.g., ImageKit)"
+    )
+    amazon_link = models.URLField(
+        max_length=500,
+        help_text="Amazon affiliate or product link"
+    )
+    is_featured = models.BooleanField(
+        default=True,
+        db_index=True,
+        help_text="Featured products are displayed on the products page"
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='products'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Product'
+        verbose_name_plural = 'Products'
+
+    def __str__(self):
+        return self.name
