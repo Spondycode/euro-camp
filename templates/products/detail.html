@@ -46,11 +46,11 @@
         <div class="bg-white rounded-lg shadow-xl overflow-hidden">
             {% if product.image_url %}
             <!-- Product Image - Clickable to Amazon -->
-            <a href="{{ product.amazon_link }}" target="_blank" rel="noopener noreferrer" class="block w-full h-96 overflow-hidden group">
+            <a href="{{ product.amazon_link }}" target="_blank" rel="noopener noreferrer" class="block w-full h-96 overflow-hidden group relative">
                 <img src="{{ product.image_url }}?tr=w-1200,h-800,fo-auto,f-auto,q-80" 
                      alt="{{ product.name }}" 
                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center">
+                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center pointer-events-none">
                     <span class="opacity-0 group-hover:opacity-100 bg-white px-4 py-2 rounded-lg font-semibold text-gray-800 shadow-lg transition-opacity">
                         Click to view on Amazon
                     </span>
