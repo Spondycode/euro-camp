@@ -1,0 +1,49 @@
+name,town,description,map_location,website,phone_number,country,province,type,image_url,is_approved,is_premium
+Camping Playa Montroig,Mont-roig del Camp,Beachfront camping resort with pools,"40.960077, 0.996306",https://www.playamontroig.com,+34 977 81 60 00,ES,Tarragona,,,TRUE,FALSE
+Camping Vilanova Park,Vilanova i la Geltrú,Well-equipped campsite with family facilities,"41.210116, 1.726946",https://vilanovapark.com,+34 938 17 92 00,ES,Barcelona,,,TRUE,FALSE
+Camping Albarracín,Albarracín,Spacious pitches near a UNESCO town,"40.404768, -1.439227",https://www.campingalbarracin.com,+34 978 71 50 33,ES,Teruel,,,TRUE,FALSE
+Camping Aranjuez,Aranjuez,Close to Royal Gardens and historic sites,"40.031933, -3.603496",http://www.campingaranjuez.com,+34 916 97 46 45,ES,Madrid,,,TRUE,FALSE
+Camping La Bella Vista,Manilva,Seafront camping near beaches,"36.529064, -5.249017",https://www.labellavista.es,+34 952 89 23 74,ES,Málaga,,,TRUE,FALSE
+Camping Alegría del Mar,Peñíscola,Family-oriented campsite close to the sea,"40.349590, 0.417323",https://www.campingalegriadelmar.com,+34 964 48 16 17,ES,Castellón,,,TRUE,FALSE
+Camping Sitges,Sitges,Beachside site with pools and restaurants,"41.234822, 1.809350",https://www.campingsitges.com,+34 938 94 74 11,ES,Barcelona,,,TRUE,FALSE
+Camping El Pinar,Blanes,Shaded camping next to the beach,"41.675494, 2.785066",http://www.campingelpinar.com,+34 972 33 04 37,ES,Girona,,,TRUE,FALSE
+Camping Colombres,Colombres,Rural site near the coast,"43.488562, -5.226607",https://campingcolombres.es,+34 985 68 22 44,ES,Asturias,,,TRUE,FALSE
+Camping La Viñuela,Viñuela,Peaceful site near the lake,"36.804345, -4.113898",https://www.campinglaviñuela.com,+34 952 54 22 26,ES,Málaga,,,TRUE,FALSE
+Camping Tucan,Miami Platja,Modern facilities near the beach,"41.066807, 0.982165",https://www.campingtucan.com,+34 977 37 21 00,ES,Tarragona,,,TRUE,FALSE
+Camping Las Palmeras,Sant Pere Pescador,Popular campsite close to natural parks,"42.143629, 3.058934",https://www.piuretedelaspalmeras.com,+34 972 57 09 23,ES,Girona,,,TRUE,FALSE
+Camping Valls d'Àneu,Esterri d'Àneu,Mountain camping in the Pyrenees,"42.658249, 0.893019",https://vallsdaneu.com,+34 973 62 64 60,ES,Lleida,,,TRUE,FALSE
+Camping Torre de la Mora,Tamarit,Large site near Tarragon beaches,"41.096353, 1.203949",https://www.estivaltorredelamora.com,+34 977 64 20 40,ES,Tarragona,,,TRUE,FALSE
+Camping El Escorial,San Lorenzo de El Escorial,Near a historic royal palace,"40.590900, -4.145543",,+34 918 90 56 93,ES,Madrid,,,TRUE,FALSE
+Camping Las Dunas,La Marina,Beach camping with family amenities,"38.104245, -0.552318",https://lasdunas.com,+34 965 39 16 00,ES,Alicante,,,TRUE,FALSE
+Camping El Molino,San Pedro del Pinatar,Family-friendly near Mar Menor,"37.834556, -0.803983",https://www.campingelmolino.com,+34 968 58 21 04,ES,Murcia,,,TRUE,FALSE
+Camping La Buganvilla,Marbella,Coastal camping with pine trees,"36.523959, -4.887089",https://www.labuganvilla.com,+34 952 83 05 22,ES,Málaga,,,TRUE,FALSE
+Camping Alicante,El Campello,Close to Alicante city and beaches,"38.438241, -0.363791",http://www.campinalg.com,+34 965 60 36 77,ES,Alicante,,,TRUE,FALSE
+Camping Los Escullos,Cabo de Gata,Desert coastal natural park camping,"36.877000, -2.150000",,+34 950 38 01 04,ES,Almería,,,TRUE,FALSE
+Camping Internacional,Calonge,Near Costa Brava beaches,"41.883700, 3.027600",https://campinginternacional.com,+34 972 66 60 04,ES,Girona,,,TRUE,FALSE
+Camping Las Tres Calas,Alcossebre,Family campsite near sea in Valencia,"40.313889, 0.307222",https://www.lastrescalas.com,+34 964 48 11 69,ES,Castellón,,,TRUE,FALSE
+Camping Marina d'Or,Oropesa del Mar,Beach resort with pools and activities,"40.091840, 0.110140",https://www.marinador.com,+34 964 31 87 11,ES,Castellón,,,TRUE,FALSE
+Camping Toro Bravo,Oropesa del Mar,Beachfront family camping,"40.072106, 0.095655",,+34 964 31 83 22,ES,Castellón,,,TRUE,FALSE
+Camping Sant Pol de Mar,Sant Pol de Mar,Simple beach camping,"41.582886, 2.527070",,+34 937 68 00 71,ES,Barcelona,,,TRUE,FALSE
+Camping Rueda de Ebro,Navarra,Riverside campsite,"42.346002, -1.685603",,+34 948 85 66 89,ES,Navarra,,,TRUE,FALSE
+Camping Isábena,La Puebla de Roda,Mountain campsite near hiking trails,"42.379945, 0.300326",https://www.campingisabena.com,+34 974 32 64 59,ES,Huesca,,,TRUE,FALSE
+Camping Gleva,Vilanova de l'Aguda,Peaceful riverside camping,"41.837602, 1.094887",,+34 973 43 71 13,ES,Lleida,,,TRUE,FALSE
+Camping Bungalows Cantia,Gósol,Secluded mountain camping,"42.336372, 1.445147",,+34 973 65 94 45,ES,Lleida,,,TRUE,FALSE
+Camping Ria de Arosa,Vilanova de Arousa,Coastal camping near Ría de Arousa,"42.572728, -8.892633",,+34 986 59 03 44,ES,Pontevedra,,,TRUE,FALSE
+Camping Playa Paraiso,Mojacar,Coastal site with scenic views,"37.190070, -1.828781",https://www.playaparaisomojaqueresort.com,+34 950 47 31 43,ES,Almería,,,TRUE,FALSE
+Camping Les Medes,Estartit,Pine forest camping near beaches,"42.069206, 3.208376",https://www.lesmedescamping.com,+34 972 75 15 30,ES,Girona,,,TRUE,FALSE
+Camping Alegria del Mar,Peñíscola,Large family campsite,"40.350497, 0.415178",https://www.campingalegriadelmar.com,+34 964 48 16 17,ES,Castellón,,,TRUE,FALSE
+Camping Costa Blanca,Elche,Close to Alicante and beaches,"38.270502, -0.712691",http://www.campingcostablanca.com,+34 966 61 95 71,ES,Alicante,,,TRUE,FALSE
+Camping Zapata,Alboraya,Near Valencia city and beach,"39.510059, -0.328971",https://campingzapata.com,+34 960 30 05 33,ES,Valencia,,,TRUE,FALSE
+Camping Urbanización Couceiro,O Grove,Coastal campsite in Galicia,"42.502529, -8.888787",,+34 986 74 00 24,ES,Pontevedra,,,TRUE,FALSE
+Camping Ribadesella,Ribadesella,Mountain and sea camping,"43.470988, -5.073861",https://www.campingribadesella.com,+34 985 86 12 09,ES,Asturias,,,TRUE,FALSE
+Camping Mijares,Mijares,Family camping with pools,"40.231777, -0.374029",https://campingmijares.com,+34 964 41 01 44,ES,Castellón,,,TRUE,FALSE
+Camping La Buganvilla,Marbella,Popular campsite near beaches,"36.523959, -4.887089",https://www.labuganvilla.com,+34 952 83 05 22,ES,Málaga,,,TRUE,FALSE
+Camping Tamariu,Tamariu,Seaside campsite in Costa Brava,"41.873430, 3.157770",https://campingtamariu.com,+34 972 75 04 68,ES,Girona,,,TRUE,FALSE
+Camping La Viñuela,Viñuela,Lakeside camping retreat,"36.804345, -4.113898",https://www.campinglaviñuela.com,+34 952 54 22 26,ES,Málaga,,,TRUE,FALSE
+Camping Camper Playa,La Manga,Popular beach campsite,"37.552378, -0.789851",,+34 968 33 68 31,ES,Murcia,,,TRUE,FALSE
+Camping Bonanza,Altea,Typical Mediterranean campsite,"38.621390, -0.054510",https://campingbonanza.com,+34 965 84 73 00,ES,Alicante,,,TRUE,FALSE
+Camping El Escurial,El Escorial,Historic area camping,"40.590900, -4.145543",,+34 918 90 56 93,ES,Madrid,,,TRUE,FALSE
+Camping Bungalows La Cueva,Llanes,Mountain campsite with great views,"43.431829, -4.744807",,+34 985 40 43 84,ES,Asturias,,,TRUE,FALSE
+Camping La Manga del Mar Menor,Cartagena,Renowned campsite by Mar Menor,"37.585101, -0.761436",https://www.lamangacamping.com,+34 968 58 20 00,ES,Murcia,,,TRUE,FALSE
+Camping Marjal Costa Blanca,Guardamar del Segura,Large 4-star site with pools,"38.085276, -0.642796",https://www.marjal.com,+34 966 72 95 10,ES,Alicante,,,TRUE,FALSE
+Camping Castellón,Amposta,River campsite near Delta de l'Ebre,"40.735555, 0.483329",,+34 977 43 14 25,ES,Tarragona,,,TRUE,FALSE
