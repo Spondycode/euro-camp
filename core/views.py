@@ -26,33 +26,47 @@ def home(request):
 
 @login_required
 def campsites_list(request):
-    """Display list of all campsites."""
+    """Display list of all campsites with pagination."""
+    from django.core.paginator import Paginator
+    
+    user = request.user
+    
     # Staff can see all campsites; others only see approved
-    if request.user.is_staff:
-        all_campsites = Campsite.objects.all()
-    else:
-        all_campsites = Campsite.objects.filter(is_approved=True)
+    qs = Campsite.objects.all()
+    if not user.is_staff:
+        qs = qs.filter(is_approved=True)
     
-    # Annotate with like counts
-    all_campsites = all_campsites.annotate(like_count=Count('likes'))
+    # Annotate with like counts and order: premium first, then by like count, then by name
+    qs = qs.annotate(
+        like_count=Count('likes', distinct=True)
+    ).order_by('-is_premium', '-like_count', 'name')
     
-    # Separate premium and regular campsites
-    premium_campsites = all_campsites.filter(is_premium=True)
-    regular_campsites = all_campsites.filter(is_premium=False)
+    # Paginate with first 30 items
+    paginator = Paginator(qs, 30)
+    page_obj = paginator.get_page(1)
     
     # Get current user's liked campsite IDs
     liked_campsite_ids = set()
-    if request.user.is_authenticated:
+    if user.is_authenticated:
         liked_campsite_ids = set(
-            CampsiteLike.objects.filter(user=request.user).values_list('campsite_id', flat=True)
+            CampsiteLike.objects.filter(user=user).values_list('campsite_id', flat=True)
         )
     
     # Can add new campsites if superuser or in CampsiteManager group
-    can_add = request.user.is_superuser or request.user.groups.filter(name='CampsiteManager').exists()
+    can_add = user.is_superuser or user.groups.filter(name='CampsiteManager').exists()
     
     return render(request, 'campsites/list.html', {
-        'premium_campsites': premium_campsites,
-        'campsites': regular_campsites,
+        'campsites': page_obj.object_list,
+        'pagination_meta': {
+            'count': paginator.count,
+            'current_page': page_obj.number,
+            'total_pages': paginator.num_pages,
+            'next_page': 2 if paginator.num_pages > 1 else None,
+        },
+        'initial_filters': {
+            'country': request.GET.get('country', ''),
+            'search': request.GET.get('search', ''),
+        },
         'can_modify': can_add,
         'liked_campsite_ids': liked_campsite_ids
     })

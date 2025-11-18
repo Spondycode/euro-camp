@@ -1,18 +1,98 @@
 from django.db import transaction
+from django.db.models import Count, Exists, OuterRef, Q, Value, BooleanField
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated, BasePermission
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import authentication, status, generics
+from rest_framework.pagination import PageNumberPagination
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 from core.models import Campsite, CampsiteLike, Product
-from .serializers import ProductSerializer
+from .serializers import CampsiteSerializer, ProductSerializer
 
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def health(request):
     return Response({"status": "ok"})
+
+
+class CampsitePagination(PageNumberPagination):
+    """Custom pagination for campsites list."""
+    page_size = 30
+    page_query_param = 'page'
+
+    def get_paginated_response(self, data):
+        return Response({
+            'count': self.page.paginator.count,
+            'current_page': self.page.number,
+            'total_pages': self.page.paginator.num_pages,
+            'next': self.get_next_link(),
+            'previous': self.get_previous_link(),
+            'results': data,
+        })
+
+
+@extend_schema(
+    summary="List campsites (paginated)",
+    parameters=[
+        OpenApiParameter(name='country', description='2-letter country code', required=False, type=OpenApiTypes.STR),
+        OpenApiParameter(name='search', description='Search in name or town', required=False, type=OpenApiTypes.STR),
+        OpenApiParameter(name='page', description='Page number (1-based)', required=False, type=OpenApiTypes.INT),
+    ],
+)
+class CampsiteListAPIView(generics.ListAPIView):
+    """API view for paginated campsites list with filters."""
+    serializer_class = CampsiteSerializer
+    pagination_class = CampsitePagination
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        request = self.request
+        user = request.user
+
+        qs = Campsite.objects.all()
+
+        # Approval visibility: staff can see all, others only approved
+        if not user.is_staff:
+            qs = qs.filter(is_approved=True)
+
+        # Filter by country
+        country = request.query_params.get('country')
+        if country:
+            qs = qs.filter(country__iexact=country.strip())
+
+        # Search in name or town
+        search = request.query_params.get('search')
+        if search:
+            s = search.strip()
+            qs = qs.filter(Q(name__icontains=s) | Q(town__icontains=s))
+
+        # Annotate with like count
+        qs = qs.annotate(
+            like_count=Count('likes', distinct=True)
+        )
+
+        # Annotate with has_liked for authenticated users
+        if user.is_authenticated:
+            qs = qs.annotate(
+                has_liked=Exists(
+                    CampsiteLike.objects.filter(user=user, campsite_id=OuterRef('pk'))
+                )
+            )
+        else:
+            qs = qs.annotate(has_liked=Value(False, output_field=BooleanField()))
+
+        # Ordering: premium first, then by like count desc, then by name
+        qs = qs.order_by('-is_premium', '-like_count', 'name')
+
+        return qs
+
+    def get_serializer_context(self):
+        ctx = super().get_serializer_context()
+        ctx['request'] = self.request
+        return ctx
 
 
 class CampsiteLikeToggleView(APIView):
